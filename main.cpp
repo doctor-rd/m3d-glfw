@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 
 const int width = 960;
-const int height = 520;
+const int height = 540;
 
 const char* vertex_shader =
 "#version 100\n"
