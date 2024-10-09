@@ -86,6 +86,8 @@ int main() {
     GLuint loc_position= glGetAttribLocation(shader_programme, "position");
     glEnableVertexAttribArray(loc_position);
 
+    double xpos, ypos;
+    bool drag = false;
     float theta = 0.5f;
     float phi = 0.4f;
     const glm::mat4 Projection = glm::perspective(1.f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
@@ -124,6 +126,25 @@ int main() {
         glfwPollEvents();
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             break;
+        int btnstate = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+        if (btnstate == GLFW_PRESS) {
+            double x, y;
+            glfwGetCursorPos(window, &x, &y);
+            if (drag) {
+                theta += (x-xpos)*2.*glm::pi<double>()/width;
+                phi += (y-ypos)*2.*glm::pi<double>()/height;
+                if (phi < -.8) phi = -.8;
+                if (phi > .8) phi = .8;
+            }
+            {
+                xpos = x;
+                ypos = y;
+                drag = true;
+            }
+        }
+        if (btnstate == GLFW_RELEASE) {
+            drag = false;
+        }
         glfwSwapBuffers(window);
     }
 
