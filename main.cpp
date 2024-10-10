@@ -54,6 +54,18 @@ void setdimensions() {
     glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
 }
 
+double _scroll = 0.;
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    _scroll = yoffset;
+}
+
+double get_scroll() {
+    double result = _scroll;
+    _scroll = 0.;
+    return result;
+}
+
 int main() {
     if (!glfwInit())
         return 1;
@@ -67,6 +79,8 @@ int main() {
         return 1;
     }
     glfwMakeContextCurrent(window);
+
+    glfwSetScrollCallback(window, scroll_callback);
 
     GLuint vs = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vs, 1, &vertex_shader, NULL);
@@ -90,7 +104,7 @@ int main() {
     bool drag = false;
     float theta = 0.5f;
     float phi = 0.4f;
-    const glm::mat4 Projection = glm::perspective(1.f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
+    float fov = 1.f;
     const glm::mat4 View = glm::translate(glm::mat4(1.f), glm::vec3(0.f, .5f, -5.f));
 
     setdimensions();
@@ -100,6 +114,8 @@ int main() {
         glm::mat4 Model = glm::mat4(1.f);
         Model = glm::rotate(Model, phi, glm::vec3(1.f, 0.f, 0.f));
         Model = glm::rotate(Model, theta, glm::vec3(0.f, 1.f, 0.f));
+
+        glm::mat4 Projection = glm::perspective(fov, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
 
         glUseProgram(shader_programme);
         glUniform1f(loc_time, glfwGetTime());
@@ -145,6 +161,9 @@ int main() {
         if (btnstate == GLFW_RELEASE) {
             drag = false;
         }
+        fov -= get_scroll()/10.;
+        if (fov < .1f) fov = .1f;
+        if (fov > 3.f) fov = 3.f;
         glfwSwapBuffers(window);
     }
 
